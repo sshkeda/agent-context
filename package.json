@@ -1,6 +1,7 @@
 {
   "name": "pi-context",
   "version": "0.1.0",
+  "private": true,
   "description": "Tiny XML-ish context envelope helpers for Pi extensions.",
   "type": "module",
   "license": "MIT",
@@ -12,6 +13,7 @@
       "default": "./index.ts"
     }
   },
+  "files": ["index.ts", "README.md"],
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck && node --test test/*.mjs"
