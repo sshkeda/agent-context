@@ -94,7 +94,8 @@ export function truncateHead(content: string, options: { maxLines?: number; maxB
 	}
 
 	// Check if first line alone exceeds byte limit
-	const firstLineBytes = Buffer.byteLength(lines[0], "utf-8");
+	const firstLine = lines[0] ?? "";
+	const firstLineBytes = Buffer.byteLength(firstLine, "utf-8");
 	if (firstLineBytes > maxBytes) {
 		return {
 			content: "",
@@ -112,12 +113,12 @@ export function truncateHead(content: string, options: { maxLines?: number; maxB
 	}
 
 	// Collect complete lines that fit
-	const outputLinesArr = [];
+	const outputLinesArr: string[] = [];
 	let outputBytesCount = 0;
 	let truncatedBy: "lines" | "bytes" = "lines";
 
 	for (let i = 0; i < lines.length && i < maxLines; i++) {
-		const line = lines[i];
+		const line = lines[i] ?? "";
 		const lineBytes = Buffer.byteLength(line, "utf-8") + (i > 0 ? 1 : 0); // +1 for newline
 		if (outputBytesCount + lineBytes > maxBytes) {
 			truncatedBy = "bytes";
@@ -181,13 +182,13 @@ export function truncateTail(content: string, options: { maxLines?: number; maxB
 	}
 
 	// Work backwards from the end
-	const outputLinesArr = [];
+	const outputLinesArr: string[] = [];
 	let outputBytesCount = 0;
 	let truncatedBy: "lines" | "bytes" = "lines";
 	let lastLinePartial = false;
 
 	for (let i = lines.length - 1; i >= 0 && outputLinesArr.length < maxLines; i--) {
-		const line = lines[i];
+		const line = lines[i] ?? "";
 		const lineBytes = Buffer.byteLength(line, "utf-8") + (outputLinesArr.length > 0 ? 1 : 0); // +1 for newline
 		if (outputBytesCount + lineBytes > maxBytes) {
 			truncatedBy = "bytes";
@@ -240,7 +241,7 @@ function truncateStringToBytesFromEnd(str: string, maxBytes: number): string {
 	// Start from the end, skip maxBytes back
 	let start = buf.length - maxBytes;
 	// Find a valid UTF-8 boundary (start of a character)
-	while (start < buf.length && (buf[start] & 0xc0) === 0x80) {
+	while (start < buf.length && ((buf[start] ?? 0) & 0xc0) === 0x80) {
 		start++;
 	}
 	return buf.slice(start).toString("utf-8");
@@ -318,7 +319,8 @@ function isNameChar(char: string): boolean {
 }
 
 export function assertContextName(name: string, label = "name"): string {
-	if (name.length === 0 || !isNameStart(name[0] ?? "")) throw new Error(`Invalid ${label}: ${name}`);
+	const first = name[0];
+	if (first === undefined || !isNameStart(first)) throw new Error(`Invalid ${label}: ${name}`);
 	for (let i = 1; i < name.length; i += 1) {
 		if (!isNameChar(name[i] ?? "")) throw new Error(`Invalid ${label}: ${name}`);
 	}
